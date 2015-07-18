@@ -8,6 +8,7 @@
  * since some of these tests may require DOM elements. We want
  * to ensure they don't run until the DOM is ready.
  */
+        
 $(function() {
     /* This is our first test suite - a test suite just contains
     * a related set of tests. This suite is all about the RSS
@@ -21,6 +22,7 @@ $(function() {
          * allFeeds in app.js to be an empty array and refresh the
          * page?
          */
+         console.log('RSS feed test');
         it('are defined', function() {
             expect(allFeeds).toBeDefined();
             expect(allFeeds.length).not.toBe(0);
@@ -56,6 +58,7 @@ $(function() {
         var menu;
         
         beforeEach(function() {
+            console.log('menu test');
             menu = $('.menu');
         });
         
@@ -81,6 +84,16 @@ $(function() {
             expect(document.body.className).toBe('menu-hidden');
             //expect(-menu.position().left).toBeLessThan(192); TODO: test after transitions?
         });
+        
+        /* Test to ensure that the menu content is loading correctly
+        */
+        it('has a name entry for each feed', function() {
+            var menuItems = $('.menu > ul > li > a');
+            expect(menuItems.length).toEqual(allFeeds.length);
+            for (var i = 0; i < allFeeds.length; i++){
+                expect(menuItems[i].text).toEqual(allFeeds[i].name);
+            }
+        });
     });
     
     /* TODO: Write a new test suite named "Initial Entries" */
@@ -98,6 +111,7 @@ $(function() {
          * when the function didn't work and the content is old content.
          */
         beforeEach(function(done){
+            console.log('initial entries test');
             loadFeed(1, done);
         });
         
@@ -129,6 +143,7 @@ $(function() {
         var newfeedText = '';
         
         beforeEach(function(done){
+            console.log('new feed test');
             loadFeed(1, function() {
                 feedText = $('.feed').html();
                 loadFeed(3, function() {
@@ -145,9 +160,64 @@ $(function() {
         });
         
         afterAll(function(done) {
+            console.log('new feed test done');
             loadFeed(0, done);
         });
     });
     
-    
+    describe('The Feed Manager', function() {
+        /* Future functionality: allFeeds is either the default object 
+         * given or if present, then an object stored in localStoreage.
+         * Tests are based on an object called feedManager that provides 
+         * getFeeds(), addFeed(name, url), delFeed(id) and resetFeeds() methods.
+        */
+        
+        // Placeholder feedManager object; fakes the function of the real object, for later.
+        var feedManager = {
+            getFeeds: function () { 
+                if (!this.pretendStore) {this.pretendStore = JSON.parse(JSON.stringify(allFeeds))}
+                return this.pretendStore;
+            },
+            addFeed: function (name, url) {
+                this.pretendStore.push({name: name, url: url});
+            },
+            delFeed: function (id) {
+                this.pretendStore.splice(id, 1);
+            },
+            resetFeeds: function () {
+                this.pretendStore = allFeeds;
+            }
+        };
+
+        var testName = 'Test Feed';
+        var testUrl = 'http://www.example.com';
+        
+        it('retrieves feeds when getFeeds is called', function() {
+            var feeds = feedManager.getFeeds();
+            expect(feeds).toEqual(allFeeds);
+        });
+
+        it('saves new feeds and retrieves them later', function() {
+            feedManager.addFeed(testName, testUrl);
+            var feeds = feedManager.getFeeds();
+            newFeed = feeds[feeds.length -1];
+            expect(newFeed.name).toEqual(testName);
+            expect(newFeed.url).toEqual(testUrl);
+        });
+        
+        it('removes feeds with the delFeeds method', function() {
+            var feeds = feedManager.getFeeds();
+            var feedlength = feeds.length;
+            feedManager.delFeed(4);
+            var feeds = feedManager.getFeeds();
+            expect(feeds.length).toEqual(feedlength - 1);
+            expect(feeds[feeds.length-1].name).not.toEqual(testName);
+        })
+        
+        it('resets the feeds to the initial values when resetFeeds is called', function() {
+            feedManager.resetFeeds();
+            var feeds = feedManager.getFeeds();
+            expect(feeds).toEqual(allFeeds);
+        });
+    });
 }());

@@ -1,3 +1,17 @@
+# Udacifeeds Testing Suite with Jasmine
+
+Welcome to Udacifeeds, a simple feedreader page for the Udacity blog plus 3 other top quality frontend developer feeds. This version includes the Jasmine testing suite so that any amendments or additions to the feedreader you want to make are guaranteed to work - or you'll know why!
+
+Tests included in this site:
+
+- All feed information is present and complete - name and url are tested for.
+- An interactive menu successfully pops out and contains information for all the feeds.
+- The page always opens with the Udacity Blog feed loaded, and successfully loads each other feed provided.
+
+If you want to add more feeds to the page, all you have to do is place the feed Name and URL in the allFeeds object in /js/app.js. Future versions of this page will include the Feed Manager, to allow you to store your feed data locally so your new feed choices will be permanently added to the site. A testing spec is included for this feedManager which tests the feedManager.getFeeds, .addFeed, delFeed and .resetFeeds functions.
+
+-----------------------------------------------------------------------------------------
+
 # Project Overview
 
 In this project you are given a web-based application that reads RSS feeds. The original developer of this application clearly saw the value in testing, they've already included [Jasmine](http://jasmine.github.io/) and even started writing their first test suite! Unfortunately, they decided to move on to start their own company and we're now left with an application with an incomplete test suite. That's where you come in.
